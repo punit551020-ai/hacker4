@@ -1,0 +1,85 @@
+name: Build Android APK (HACKER ANKIT GAME 4)
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    name: Build Native Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Install Node Dependencies
+        run: npm ci || npm install
+
+      - name: Build Web Game Distribution
+        run: npm run build
+
+      - name: Sync Web Build to Native Android Platform
+        run: npx cap sync android
+
+      - name: Grant Execute Permission to Gradle Wrapper
+        run: chmod +x android/gradlew
+
+      - name: Build Debug APK with Gradle
+        run: |
+          cd android
+          ./gradlew assembleDebug --stacktrace
+          cd ..
+
+      - name: Rename and Prepare APK Artifact
+        run: |
+          mkdir -p release-output
+          cp android/app/build/outputs/apk/debug/app-debug.apk release-output/HACKER-ANKIT-GAME-4.apk
+          echo "APK successfully built at release-output/HACKER-ANKIT-GAME-4.apk"
+
+      - name: Upload APK as Workflow Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HACKER-ANKIT-GAME-4-Android-APK
+          path: release-output/HACKER-ANKIT-GAME-4.apk
+          retention-days: 30
+
+      - name: Create or Update GitHub Release with Direct APK Download
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        with:
+          tag_name: v1.0.0
+          name: "HACKER ANKIT GAME 4 — Android APK Release"
+          body: |
+            ### 🏁 HACKER ANKIT GAME 4 — Official Android APK Release
+            
+            **डाउनलोड करें और सीधे अपने एंड्रॉइड फोन में खेलें:**
+            - नीचे दिए गए **`HACKER-ANKIT-GAME-4.apk`** पर क्लिक करके सीधे डाउनलोड करें।
+            - फोन में डाउनलोड होने के बाद APK पर टैप करके **Install** करें।
+            - गेम का नाम आपके फोन की स्क्रीन पर **HACKER ANKIT GAME 4** दिखेगा।
+            
+            **Game Features:**
+            - 🏎️ 1-Lap Sprint Victory
+            - 🪙 In-game Coin Collection & Vehicle Garage
+            - ⚡ Infinite Procedural 3D Roads & Danger Hazards
+            - 🎮 Full Touch Screen Controls for Mobile & Laptop/PC Support
+          files: release-output/HACKER-ANKIT-GAME-4.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,13 @@
+{
+  "appId": "com.hackerankit.game4",
+  "appName": "HACKER ANKIT GAME 4",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "backgroundColor": "#0a0a0c",
+    "allowMixedContent": true,
+    "webContentsDebuggingEnabled": false
+  }
+}

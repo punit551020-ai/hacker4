@@ -1,0 +1,6 @@
+{
+  "name": "Remix Desk Racer",
+  "description": "Miniature desk coaster time-trial racing game with dangerous roads, coin collection, and custom kart skins in Three.js",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
